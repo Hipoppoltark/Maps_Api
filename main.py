@@ -17,26 +17,57 @@ class Example(QWidget):
         self.image = QLabel(self)
         self.image.move(0, 0)
         self.image.resize(600, 450)
-        self.getImage('0.002,0.002')
+        self.getImage('0.002,0.002', "37.530887,55.703118")
         self.spn = 0.002
+        self.coor = [37.530887, 55.703118]
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageUp:
             try:
                 self.spn *= 2
-                self.getImage(str(self.spn) + ',' + str(self.spn))
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
             except BaseException:
-                pass
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
         elif event.key() == Qt.Key_PageDown:
             try:
                 self.spn /= 2
-                self.getImage(str(self.spn) + ',' + str(self.spn))
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
             except BaseException:
-                pass
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
+        elif event.key() == Qt.Key_Left:
+            try:
+                self.coor[0] -= self.spn * 0.5
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
+            except BaseException:
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
+        elif event.key() == Qt.Key_Right:
+            try:
+                self.coor[0] += self.spn * 0.5
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
+            except BaseException:
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
+        elif event.key() == Qt.Key_Up:
+            try:
+                self.coor[1] += self.spn * 0.5
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
+            except BaseException:
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
+        elif event.key() == Qt.Key_Up:
+            try:
+                self.coor[1] -= self.spn * 0.5
+                self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
+            except BaseException:
+                self.spn = 0.002
+                self.coor = [37.530887, 55.703118]
 
-    def getImage(self, spn):
+    def getImage(self, spn, coor):
         params = {
-            "ll": "37.530887,55.703118",
+            "ll": coor,
             "spn": spn,
             "l": "map"
         }
@@ -71,4 +102,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Example()
     ex.show()
-    sys.exit(app.exec()))
+    sys.exit(app.exec())
