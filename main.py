@@ -4,6 +4,7 @@ import sys
 import requests
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtCore import Qt
 
 SCREEN_SIZE = [600, 450]
 
@@ -11,12 +12,26 @@ SCREEN_SIZE = [600, 450]
 class Example(QWidget):
     def __init__(self):
         super().__init__()
-        self.getImage()
+        self.getImage('0.002,0.002')
         self.initUI()
+        self.spn = 0.002
 
-    def getImage(self):
-        map_request = "http://static-maps.yandex.ru/1.x/?ll=37.530887,55.703118&spn=0.002,0.002&l=map"
-        response = requests.get(map_request)
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_PageUp:
+            self.spn *= 2
+            print(self.spn)
+        elif event.key() == Qt.Key_PageDown:
+            self.spn /= 2
+        self.getImage(str(self.spn) + ',' + str(self.spn))
+
+    def getImage(self, spn):
+        params = {
+            "ll": "37.530887,55.703118",
+            "spn": spn,
+            "l": "map"
+        }
+        map_request = "http://static-maps.yandex.ru/1.x/"
+        response = requests.get(map_request, params=params)
 
         if not response:
             print("Ошибка выполнения запроса:")
@@ -28,6 +43,12 @@ class Example(QWidget):
         self.map_file = "map.png"
         with open(self.map_file, "wb") as file:
             file.write(response.content)
+        self.image = QLabel(self)
+        self.image.move(0, 0)
+        self.image.resize(600, 450)
+        self.pixmap = QPixmap(self.map_file)
+        self.image.setPixmap(self.pixmap)
+        
 
     def initUI(self):
         self.setGeometry(100, 100, *SCREEN_SIZE)
