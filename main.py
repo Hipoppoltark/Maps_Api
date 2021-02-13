@@ -3,23 +3,62 @@ import sys
 
 import requests
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5 import uic  # Импортируем uic
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
-SCREEN_SIZE = [600, 450]
+
+APIKEY = "40d1649f-0493-4b70-98ba-98533de7710b"
 
 
-class Example(QWidget):
+class ClickedLabel(QLabel):
+    clicked = pyqtSignal()
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+        self.clicked.emit()
+
+
+class Example(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setGeometry(100, 100, *SCREEN_SIZE)
+        uic.loadUi('maps_main.ui', self)
         self.setWindowTitle('Отображение карты')
-        self.image = QLabel(self)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
+        self.image = ClickedLabel(self)
+        self.image.move(0, 60)
+        self.image.resize(650, 450)
         self.getImage('0.002,0.002', "37.530887,55.703118")
         self.spn = 0.002
         self.coor = [37.530887, 55.703118]
+        self.btn_search.clicked.connect(self.new_request)
+        self.image.clicked.connect(self.change_focus)
+
+    def change_focus(self):
+        self.image.setFocus()
+
+    def new_request(self):
+        self.image.setFocus()
+        response = requests.get(
+            'https://geocode-maps.yandex.ru/1.x',
+            params={
+                'format': 'json',
+                'apikey': APIKEY,
+                'geocode': self.line_search.text()
+            },
+        )
+        if response:
+            try:
+                json_response = response.json()
+                object = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+                address = object['metaDataProperty']['GeocoderMetaData']['text']
+                coords = object['Point']['pos']
+                self.coor = [float(i) for i in coords.split()]
+                coor_request = ','.join(coords.split())
+                self.getImage(str(self.spn) + ',' + str(self.spn), coor_request,
+                              mark=f'{coor_request},pm2dirm')
+            except Exception:
+                self.statusBar().showMessage('Нам не удалось найти такой объект')
 
     def keyPressEvent(self, event):
         try:
@@ -40,11 +79,13 @@ class Example(QWidget):
             self.spn = 0.002
             self.coor = [37.530887, 55.703118]
 
-    def getImage(self, spn, coor):
+    def getImage(self, spn, coor, mark=''):
         params = {
             "ll": coor,
             "spn": spn,
-            "l": "map"
+            "l": "map",
+            'size': '650,450',
+            'pt': mark
         }
         map_request = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_request, params=params)
