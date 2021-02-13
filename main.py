@@ -32,12 +32,17 @@ class Example(QMainWindow):
         self.spn = 0.002
         self.coor = [37.530887, 55.703118]
         self.mark = ''
+        self.postal_code = ''
         self.btn_search.clicked.connect(self.new_request)
         self.image.clicked.connect(self.change_focus)
         self.btn_reset.clicked.connect(self.reset)
         self.radioButton.clicked.connect(self.call_func_get_image)
         self.radioButton_2.clicked.connect(self.call_func_get_image)
         self.radioButton_3.clicked.connect(self.call_func_get_image)
+        self.check_index.clicked.connect(self.call_func_request)
+
+    def call_func_request(self):
+        self.new_request()
 
     def call_func_get_image(self):
         self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
@@ -76,11 +81,18 @@ class Example(QMainWindow):
                 json_response = response.json()
                 object = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
                 address = object['metaDataProperty']['GeocoderMetaData']['text']
+                try:
+                    self.postal_code = object['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                except Exception:
+                    self.postal_code = 'Нет почтового индекса'
                 coords = object['Point']['pos']
                 self.coor = [float(i) for i in coords.split()]
                 coor_request = ','.join(coords.split())
                 self.mark = f'{coor_request},pm2dirm'
-                self.adress.setPlainText(address)
+                if self.check_index.isChecked():
+                    self.adress.setPlainText(address + '\n' + f'Почтовый индекс: {self.postal_code}')
+                else:
+                    self.adress.setPlainText(address)
                 self.getImage(str(self.spn) + ',' + str(self.spn), coor_request, self.mark)
             except Exception:
                 self.statusBar().showMessage('Нам не удалось найти такой объект')

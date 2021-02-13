@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>650</width>
-    <height>584</height>
+    <height>608</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -143,6 +143,19 @@
     </property>
     <property name="text">
      <string>Гибрид</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="check_index">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>10</y>
+      <width>111</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Почтовый индекс</string>
     </property>
    </widget>
   </widget>
