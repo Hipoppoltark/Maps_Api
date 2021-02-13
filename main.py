@@ -28,9 +28,10 @@ class Example(QMainWindow):
         self.image = ClickedLabel(self)
         self.image.move(0, 60)
         self.image.resize(650, 450)
-        self.getImage('0.002,0.002', "37.530887,55.703118")
+        self.getImage('0.002,0.002', "37.530887,55.703118", '')
         self.spn = 0.002
         self.coor = [37.530887, 55.703118]
+        self.mark = ''
         self.btn_search.clicked.connect(self.new_request)
         self.image.clicked.connect(self.change_focus)
 
@@ -55,8 +56,8 @@ class Example(QMainWindow):
                 coords = object['Point']['pos']
                 self.coor = [float(i) for i in coords.split()]
                 coor_request = ','.join(coords.split())
-                self.getImage(str(self.spn) + ',' + str(self.spn), coor_request,
-                              mark=f'{coor_request},pm2dirm')
+                self.mark = f'{coor_request},pm2dirm'
+                self.getImage(str(self.spn) + ',' + str(self.spn), coor_request, self.mark)
             except Exception:
                 self.statusBar().showMessage('Нам не удалось найти такой объект')
 
@@ -74,12 +75,13 @@ class Example(QMainWindow):
                 self.coor[1] += (self.spn * 0.5 + 180) % 360 - 180
             elif event.key() == Qt.Key_Down:
                 self.coor[1] -= (self.spn * 0.5 + 180) % 360 - 180
-            self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}")
+            self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
+                          self.mark)
         except BaseException:
             self.spn = 0.002
             self.coor = [37.530887, 55.703118]
 
-    def getImage(self, spn, coor, mark=''):
+    def getImage(self, spn, coor, mark):
         params = {
             "ll": coor,
             "spn": spn,
