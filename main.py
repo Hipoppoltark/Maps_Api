@@ -34,6 +34,13 @@ class Example(QMainWindow):
         self.mark = ''
         self.btn_search.clicked.connect(self.new_request)
         self.image.clicked.connect(self.change_focus)
+        self.btn_reset.clicked.connect(self.reset_mark)
+
+    def reset_mark(self):
+        self.mark = ''
+        self.line_search.setText('')
+        self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
+                      self.mark)
 
     def change_focus(self):
         self.image.setFocus()

@@ -17,8 +17,8 @@
    <widget class="QLineEdit" name="line_search">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>15</y>
+      <x>20</x>
+      <y>20</y>
       <width>281</width>
       <height>20</height>
      </rect>
@@ -33,8 +33,8 @@
    <widget class="QPushButton" name="btn_search">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>15</y>
+      <x>330</x>
+      <y>20</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -50,6 +50,22 @@
     </property>
     <property name="text">
      <string>Искать</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_reset">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>20</y>
+      <width>171</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>Сброс поискового результата</string>
     </property>
    </widget>
   </widget>
