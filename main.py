@@ -35,6 +35,13 @@ class Example(QMainWindow):
         self.btn_search.clicked.connect(self.new_request)
         self.image.clicked.connect(self.change_focus)
         self.btn_reset.clicked.connect(self.reset)
+        self.radioButton.clicked.connect(self.call_func_get_image)
+        self.radioButton_2.clicked.connect(self.call_func_get_image)
+        self.radioButton_3.clicked.connect(self.call_func_get_image)
+
+    def call_func_get_image(self):
+        self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
+                      self.mark)
 
     def reset(self):
         self.adress.setPlainText('')
@@ -42,6 +49,14 @@ class Example(QMainWindow):
         self.line_search.setText('')
         self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
                       self.mark)
+
+    def get_map_type(self):
+        if self.radioButton.isChecked():
+            return "map"
+        elif self.radioButton_2.isChecked():
+            return "sat"
+        elif self.radioButton_3.isChecked():
+            return "sat,skl"
 
     def change_focus(self):
         self.image.setFocus()
@@ -94,7 +109,7 @@ class Example(QMainWindow):
         params = {
             "ll": coor,
             "spn": spn,
-            "l": "map",
+            "l": self.get_map_type(),
             'size': '650,450',
             'pt': mark
         }
