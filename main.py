@@ -26,7 +26,7 @@ class Example(QMainWindow):
         uic.loadUi('maps_main.ui', self)
         self.setWindowTitle('Отображение карты')
         self.image = ClickedLabel(self)
-        self.image.move(0, 60)
+        self.image.move(0, 100)
         self.image.resize(650, 450)
         self.getImage('0.002,0.002', "37.530887,55.703118", '')
         self.spn = 0.002
@@ -34,9 +34,10 @@ class Example(QMainWindow):
         self.mark = ''
         self.btn_search.clicked.connect(self.new_request)
         self.image.clicked.connect(self.change_focus)
-        self.btn_reset.clicked.connect(self.reset_mark)
+        self.btn_reset.clicked.connect(self.reset)
 
-    def reset_mark(self):
+    def reset(self):
+        self.adress.setPlainText('')
         self.mark = ''
         self.line_search.setText('')
         self.getImage(str(self.spn) + ',' + str(self.spn), f"{str(self.coor[0])},{str(self.coor[1])}",
@@ -64,6 +65,7 @@ class Example(QMainWindow):
                 self.coor = [float(i) for i in coords.split()]
                 coor_request = ','.join(coords.split())
                 self.mark = f'{coor_request},pm2dirm'
+                self.adress.setPlainText(address)
                 self.getImage(str(self.spn) + ',' + str(self.spn), coor_request, self.mark)
             except Exception:
                 self.statusBar().showMessage('Нам не удалось найти такой объект')
