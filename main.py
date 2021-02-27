@@ -17,7 +17,37 @@ class ClickedLabel(QLabel):
 
     def mouseReleaseEvent(self, e):
         super().mouseReleaseEvent(e)
-        self.clicked.emit()
+        self.setFocus()
+        # это дальность координат от центра карты. По идее должны работать как
+        # (координата в окне - центр окна) * scr / ширина ил длина окна
+        # но не работает
+        if e.button() == Qt.LeftButton:
+            x = (e.x() - self.frameGeometry().width() / 2) * 3.4912 * self.master.spn / (self.frameGeometry().width())
+            y = (self.frameGeometry().height() / 2 - e.y()) * 1.35 * self.master.spn / (self.frameGeometry().height())
+            self.master.reset()
+            response = requests.get(
+                'https://geocode-maps.yandex.ru/1.x',
+                params={
+                    'format': 'json',
+                    'apikey': APIKEY,
+                    'geocode': str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y)
+                },
+            )
+            if response:
+                try:
+                    json_response = response.json()
+                    object = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+                    address = object['metaDataProperty']['GeocoderMetaData']['text']
+                    coords = object['Point']['pos']
+                    coor_request = ','.join(coords.split())
+                    self.master.mark = str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y) + \
+                                       ',pm2dirm'
+                    self.master.adress.setPlainText(address)
+                    self.master.getImage(str(self.master.spn) + ',' + str(self.master.spn),
+                                         ','.join(map(str, self.master.coor)),
+                                         str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y) + ',pm2dirm')
+                except Exception:
+                    self.master.statusBar().showMessage('Нам не удалось найти такой объект')
 
 
 class Example(QMainWindow):
@@ -28,8 +58,10 @@ class Example(QMainWindow):
         self.image = ClickedLabel(self)
         self.image.move(0, 100)
         self.image.resize(650, 450)
+        self.image.master = self
         self.getImage('0.002,0.002', "37.530887,55.703118", '')
         self.spn = 0.002
+        self.spn2 = self.spn * 0.75
         self.coor = [37.530887, 55.703118]
         self.mark = ''
         self.postal_code = ''
@@ -40,6 +72,7 @@ class Example(QMainWindow):
         self.radioButton_2.clicked.connect(self.call_func_get_image)
         self.radioButton_3.clicked.connect(self.call_func_get_image)
         self.check_index.clicked.connect(self.call_func_request)
+        self.x, self.y = self.coor[0], self.coor[1]
 
     def call_func_request(self):
         self.new_request()
@@ -66,7 +99,7 @@ class Example(QMainWindow):
     def change_focus(self):
         self.image.setFocus()
 
-    def new_request(self):
+    def new_request(self, mousepressed=[]):
         self.image.setFocus()
         response = requests.get(
             'https://geocode-maps.yandex.ru/1.x',
