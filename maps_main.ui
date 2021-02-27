@@ -104,7 +104,7 @@
      </rect>
     </property>
     <property name="focusPolicy">
-     <enum>Qt::NoFocus</enum>
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>Схема</string>
@@ -123,7 +123,7 @@
      </rect>
     </property>
     <property name="focusPolicy">
-     <enum>Qt::NoFocus</enum>
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>Спутник</string>
@@ -139,7 +139,7 @@
      </rect>
     </property>
     <property name="focusPolicy">
-     <enum>Qt::NoFocus</enum>
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>Гибрид</string>
@@ -153,6 +153,9 @@
       <width>111</width>
       <height>17</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>Почтовый индекс</string>
