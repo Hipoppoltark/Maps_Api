@@ -39,10 +39,17 @@ class ClickedLabel(QLabel):
                     object = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
                     address = object['metaDataProperty']['GeocoderMetaData']['text']
                     coords = object['Point']['pos']
+                    try:
+                        self.master.postal_code = object['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                    except Exception:
+                        self.master.postal_code = 'Нет почтового индекса'
                     coor_request = ','.join(coords.split())
                     self.master.mark = str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y) + \
                                        ',pm2dirm'
-                    self.master.adress.setPlainText(address)
+                    if self.master.check_index.isChecked():
+                        self.master.adress.setPlainText(address + '\n' + f'Почтовый индекс: {self.master.postal_code}')
+                    else:
+                        self.master.adress.setPlainText(address)
                     self.master.getImage(str(self.master.spn) + ',' + str(self.master.spn),
                                          ','.join(map(str, self.master.coor)),
                                          str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y) + ',pm2dirm')
@@ -106,7 +113,7 @@ class Example(QMainWindow):
             params={
                 'format': 'json',
                 'apikey': APIKEY,
-                'geocode': self.line_search.text()
+                'geocode': self.line_search.text() if self.line_search.text() else self.mark[:len(self.mark) - 8]
             },
         )
         if response:
