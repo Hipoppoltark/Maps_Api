@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 APIKEY = "40d1649f-0493-4b70-98ba-98533de7710b"
+api_search = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
 
 
 class ClickedLabel(QLabel):
@@ -53,6 +54,76 @@ class ClickedLabel(QLabel):
                     self.master.getImage(str(self.master.spn) + ',' + str(self.master.spn),
                                          ','.join(map(str, self.master.coor)),
                                          str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y) + ',pm2dirm')
+                except Exception:
+                    self.master.statusBar().showMessage('Нам не удалось найти такой объект')
+
+        elif e.button() == Qt.RightButton:
+            x = (e.x() - self.frameGeometry().width() / 2) * 3.4912 * self.master.spn / (
+                self.frameGeometry().width())
+            y = (self.frameGeometry().height() / 2 - e.y()) * 1.35 * self.master.spn / (
+                self.frameGeometry().height())
+            self.master.reset()
+            response = requests.get(
+                'https://geocode-maps.yandex.ru/1.x',
+                params={
+                    'format': 'json',
+                    'apikey': APIKEY,
+                    'geocode': str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y)
+                },
+            )
+            if response:
+                json_response = response.json()
+                object = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+                address = object['metaDataProperty']['GeocoderMetaData']['text']
+            response = requests.get(
+                'https://search-maps.yandex.ru/v1/',
+                params={
+                    'text': address,
+                    'apikey': api_search,
+                    "lang": "ru_RU",
+                    'll': str(self.master.coor[0] + x) + ',' + str(self.master.coor[1] + y),
+                    'spn': '0.002,0.002',
+                    'rspn': 1
+                },
+            )
+            if response:
+                try:
+                    json_response = response.json()
+                    # Получаем первую найденную организацию.
+                    organization = json_response["features"][0]
+                    # Название организации.
+                    org_name = organization["properties"]["CompanyMetaData"]["name"]
+                    org_address = organization["properties"]["CompanyMetaData"]["address"]
+                    # Получаем координаты ответа.
+                    point = organization["geometry"]["coordinates"]
+                    org_point = "{0},{1}".format(point[0], point[1])
+
+                    response_postal_code = requests.get(
+                        'https://geocode-maps.yandex.ru/1.x',
+                        params={
+                            'format': 'json',
+                            'apikey': APIKEY,
+                            'geocode': org_point
+                        },
+                    ).json()
+                    object_code = response_postal_code['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+
+                    try:
+                        self.master.postal_code = object_code['metaDataProperty']\
+                            ['GeocoderMetaData']['Address']['postal_code']
+                    except Exception:
+                        self.master.postal_code = 'Нет почтового индекса'
+                    self.master.mark = org_point + \
+                                       ',pm2dirm'
+                    if self.master.check_index.isChecked():
+                        self.master.adress.setPlainText(org_name + '\n' + org_address + '\n' +
+                                                        f'Почтовый индекс: '
+                                                        f'{self.master.postal_code}')
+                    else:
+                        self.master.adress.setPlainText(org_name + '\n' + org_address)
+                    self.master.getImage(str(self.master.spn) + ',' + str(self.master.spn),
+                                         ','.join(map(str, self.master.coor)),
+                                         org_point + ',pm2dirm')
                 except Exception:
                     self.master.statusBar().showMessage('Нам не удалось найти такой объект')
 
